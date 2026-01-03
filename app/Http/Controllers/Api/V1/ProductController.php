@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProductRequest;
+use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
@@ -16,7 +17,7 @@ class ProductController extends Controller
      */
     public function index(): JsonResponse
     {
-        $query = Product::query()->with(['category', 'variants', 'addons', 'media', 'tags']);
+        $query = Product::query()->with(['category', 'variantPrices.variantOption', 'productAddons.addon', 'media', 'tags']);
 
         // Filter by category_id
         if (request()->has('category_id')) {
@@ -53,7 +54,7 @@ class ProductController extends Controller
      */
     public function show(Product $product): JsonResponse
     {
-        $product->load(['category', 'variants', 'addons', 'media', 'tags']);
+        $product->load(['category', 'variantPrices.variantOption', 'productAddons.addon', 'media', 'tags']);
 
         return (new ProductResource($product))->response();
     }
@@ -67,30 +68,14 @@ class ProductController extends Controller
             $validated = $request->validated();
 
             // Extract nested data
-            $variants = $validated['variants'] ?? [];
-            $addons = $validated['addons'] ?? [];
             $media = $validated['media'] ?? [];
             $tags = $validated['tags'] ?? [];
 
             // Remove nested data from product data
-            unset($validated['variants'], $validated['addons'], $validated['media'], $validated['tags']);
+            unset($validated['media'], $validated['tags']);
 
             // Create product
             $product = Product::create($validated);
-
-            // Create variants
-            if (! empty($variants)) {
-                foreach ($variants as $variant) {
-                    $product->variants()->create($variant);
-                }
-            }
-
-            // Create addons
-            if (! empty($addons)) {
-                foreach ($addons as $addon) {
-                    $product->addons()->create($addon);
-                }
-            }
 
             // Create media
             if (! empty($media)) {
@@ -106,11 +91,33 @@ class ProductController extends Controller
                 }
             }
 
-            return $product->load(['category', 'variants', 'addons', 'media', 'tags']);
+            return $product->load(['category', 'variantPrices.variantOption', 'productAddons.addon', 'media', 'tags']);
         });
 
         return (new ProductResource($product))
             ->response()
             ->setStatusCode(201);
+    }
+
+    /**
+     * Update the specified product.
+     */
+    public function update(UpdateProductRequest $request, Product $product): JsonResponse
+    {
+        $product->update($request->validated());
+
+        return (new ProductResource($product->load(['category', 'variantPrices.variantOption', 'productAddons.addon', 'media', 'tags'])))->response();
+    }
+
+    /**
+     * Remove the specified product.
+     */
+    public function destroy(Product $product): JsonResponse
+    {
+        $product->delete();
+
+        return response()->json([
+            'message' => 'Product deleted successfully',
+        ], 200);
     }
 }

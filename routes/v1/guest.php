@@ -21,6 +21,9 @@ Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])-
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
+Route::patch('/products/{product}', [ProductController::class, 'update'])->name('products.update');
+Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
 
 Route::get('/variants', [VariantController::class, 'index'])->name('variants.index');
 Route::post('/variants', [VariantController::class, 'store'])->name('variants.store');
