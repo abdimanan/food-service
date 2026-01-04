@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AttachProductTagsRequest;
 use App\Http\Requests\StoreProductRequest;
+use App\Http\Requests\SyncProductTagsRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
@@ -119,5 +121,51 @@ class ProductController extends Controller
         return response()->json([
             'message' => 'Product deleted successfully',
         ], 200);
+    }
+
+    /**
+     * Attach tags to the specified product.
+     */
+    public function attachTags(AttachProductTagsRequest $request, Product $product): JsonResponse
+    {
+        $tags = $request->validated()['tags'];
+
+        foreach ($tags as $tagData) {
+            $product->tags()->create($tagData);
+        }
+
+        return (new ProductResource($product->load(['category', 'variantPrices.variantOption', 'productAddons.addon', 'media', 'tags'])))->response();
+    }
+
+    /**
+     * Detach tags from the specified product.
+     */
+    public function detachTags(AttachProductTagsRequest $request, Product $product): JsonResponse
+    {
+        $tags = $request->validated()['tags'];
+
+        foreach ($tags as $tagData) {
+            $product->tags()->where('tag', $tagData['tag'])->delete();
+        }
+
+        return (new ProductResource($product->load(['category', 'variantPrices.variantOption', 'productAddons.addon', 'media', 'tags'])))->response();
+    }
+
+    /**
+     * Sync tags for the specified product.
+     */
+    public function syncTags(SyncProductTagsRequest $request, Product $product): JsonResponse
+    {
+        $tags = $request->validated()['tags'];
+
+        // Delete all existing tags
+        $product->tags()->delete();
+
+        // Create new tags
+        foreach ($tags as $tagData) {
+            $product->tags()->create($tagData);
+        }
+
+        return (new ProductResource($product->load(['category', 'variantPrices.variantOption', 'productAddons.addon', 'media', 'tags'])))->response();
     }
 }

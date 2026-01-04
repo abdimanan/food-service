@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\ProductAddonController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\ProductVariantPriceController;
+use App\Http\Controllers\Api\V1\TagController;
 use App\Http\Controllers\Api\V1\VariantController;
 use App\Http\Controllers\Api\V1\VariantOptionController;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,9 @@ Route::post('/products', [ProductController::class, 'store'])->name('products.st
 Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
 Route::patch('/products/{product}', [ProductController::class, 'update'])->name('products.update');
 Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+Route::post('/products/{product}/tags', [ProductController::class, 'attachTags'])->name('products.tags.attach');
+Route::delete('/products/{product}/tags', [ProductController::class, 'detachTags'])->name('products.tags.detach');
+Route::put('/products/{product}/tags', [ProductController::class, 'syncTags'])->name('products.tags.sync');
 
 Route::get('/variants', [VariantController::class, 'index'])->name('variants.index');
 Route::post('/variants', [VariantController::class, 'store'])->name('variants.store');
@@ -59,3 +63,10 @@ Route::get('/product-addons/{productAddon}', [ProductAddonController::class, 'sh
 Route::put('/product-addons/{productAddon}', [ProductAddonController::class, 'update'])->name('product-addons.update');
 Route::patch('/product-addons/{productAddon}', [ProductAddonController::class, 'update'])->name('product-addons.update');
 Route::delete('/product-addons/{productAddon}', [ProductAddonController::class, 'destroy'])->name('product-addons.destroy');
+
+Route::get('/tags', [TagController::class, 'index'])->name('tags.index');
+Route::post('/tags', [TagController::class, 'store'])->name('tags.store');
+Route::get('/tags/{tag}', [TagController::class, 'show'])->name('tags.show');
+Route::put('/tags/{tag}', [TagController::class, 'update'])->name('tags.update');
+Route::patch('/tags/{tag}', [TagController::class, 'update'])->name('tags.update');
+Route::delete('/tags/{tag}', [TagController::class, 'destroy'])->name('tags.destroy');
