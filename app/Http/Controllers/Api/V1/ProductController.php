@@ -26,6 +26,15 @@ class ProductController extends Controller
             $query->where('category_id', request('category_id'));
         }
 
+        // Filter by category name (search)
+        if (request()->has('category')) {
+            $categoryName = request('category');
+            $query->whereHas('category', function ($categoryQuery) use ($categoryName) {
+                $categoryQuery->where('name', 'like', "%{$categoryName}%")
+                    ->orWhere('slug', 'like', "%{$categoryName}%");
+            });
+        }
+
         // Filter by vendor_id
         if (request()->has('vendor_id')) {
             $query->where('vendor_id', request('vendor_id'));
@@ -35,6 +44,22 @@ class ProductController extends Controller
         if (request()->has('is_live')) {
             $isLive = filter_var(request('is_live'), FILTER_VALIDATE_BOOLEAN);
             $query->where('is_live', $isLive);
+        }
+
+        // Filter by tag ID
+        if (request()->has('tags_id')) {
+            $tagId = request('tags_id');
+            $query->whereHas('tags', function ($tagQuery) use ($tagId) {
+                $tagQuery->where('tags.id', $tagId);
+            });
+        }
+
+        // Filter by tag name (search)
+        if (request()->has('tags')) {
+            $tagName = request('tags');
+            $query->whereHas('tags', function ($tagQuery) use ($tagName) {
+                $tagQuery->where('tags.name', 'like', "%{$tagName}%");
+            });
         }
 
         // Filter by search term (name or slug)
