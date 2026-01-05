@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class SyncProductTagsRequest extends FormRequest
 {
@@ -23,7 +24,23 @@ class SyncProductTagsRequest extends FormRequest
     {
         return [
             'tags' => ['required', 'array'],
-            'tags.*.tag' => ['required', 'string', 'max:255'],
+            'tags.*' => ['required', 'integer', Rule::exists('tags', 'id')],
+        ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'tags.required' => 'The tags field is required.',
+            'tags.array' => 'The tags must be an array.',
+            'tags.*.required' => 'Each tag ID is required.',
+            'tags.*.integer' => 'Each tag ID must be an integer.',
+            'tags.*.exists' => 'One or more selected tags do not exist.',
         ];
     }
 }

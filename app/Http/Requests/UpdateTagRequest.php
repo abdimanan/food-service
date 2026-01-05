@@ -22,7 +22,22 @@ class UpdateTagRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => ['sometimes', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+        ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'name.string' => 'The tag name must be a string.',
+            'name.max' => 'The tag name may not be greater than 255 characters.',
+            'description.string' => 'The description must be a string.',
         ];
     }
 }

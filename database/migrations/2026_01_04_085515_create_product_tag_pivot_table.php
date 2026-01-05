@@ -13,7 +13,13 @@ return new class extends Migration
     {
         Schema::create('product_tag_pivot', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
+            $table->foreignId('tag_id')->constrained('tags')->cascadeOnDelete();
             $table->timestamps();
+
+            $table->unique(['product_id', 'tag_id']);
+            $table->index('product_id');
+            $table->index('tag_id');
         });
     }
 

@@ -86,11 +86,9 @@ class ProductController extends Controller
                 }
             }
 
-            // Create tags
+            // Sync tags
             if (! empty($tags)) {
-                foreach ($tags as $tag) {
-                    $product->tags()->create($tag);
-                }
+                $product->tags()->sync($tags);
             }
 
             return $product->load(['category', 'variantPrices.variantOption', 'productAddons.addon', 'media', 'tags']);
@@ -128,11 +126,9 @@ class ProductController extends Controller
      */
     public function attachTags(AttachProductTagsRequest $request, Product $product): JsonResponse
     {
-        $tags = $request->validated()['tags'];
+        $tagIds = $request->validated()['tags'];
 
-        foreach ($tags as $tagData) {
-            $product->tags()->create($tagData);
-        }
+        $product->tags()->attach($tagIds);
 
         return (new ProductResource($product->load(['category', 'variantPrices.variantOption', 'productAddons.addon', 'media', 'tags'])))->response();
     }
@@ -142,11 +138,9 @@ class ProductController extends Controller
      */
     public function detachTags(AttachProductTagsRequest $request, Product $product): JsonResponse
     {
-        $tags = $request->validated()['tags'];
+        $tagIds = $request->validated()['tags'];
 
-        foreach ($tags as $tagData) {
-            $product->tags()->where('tag', $tagData['tag'])->delete();
-        }
+        $product->tags()->detach($tagIds);
 
         return (new ProductResource($product->load(['category', 'variantPrices.variantOption', 'productAddons.addon', 'media', 'tags'])))->response();
     }
@@ -156,15 +150,9 @@ class ProductController extends Controller
      */
     public function syncTags(SyncProductTagsRequest $request, Product $product): JsonResponse
     {
-        $tags = $request->validated()['tags'];
+        $tagIds = $request->validated()['tags'];
 
-        // Delete all existing tags
-        $product->tags()->delete();
-
-        // Create new tags
-        foreach ($tags as $tagData) {
-            $product->tags()->create($tagData);
-        }
+        $product->tags()->sync($tagIds);
 
         return (new ProductResource($product->load(['category', 'variantPrices.variantOption', 'productAddons.addon', 'media', 'tags'])))->response();
     }

@@ -37,7 +37,7 @@ class StoreProductRequest extends FormRequest
             'media.*.type' => ['required_with:media', Rule::in(['image', 'video'])],
             'media.*.position' => ['sometimes', 'integer', 'min:0'],
             'tags' => ['sometimes', 'array'],
-            'tags.*.tag' => ['required_with:tags', 'string', 'max:255'],
+            'tags.*' => ['required_with:tags', 'integer', Rule::exists('tags', 'id')],
         ];
     }
 
@@ -80,9 +80,9 @@ class StoreProductRequest extends FormRequest
             'media.*.position.integer' => 'Each media position must be an integer.',
             'media.*.position.min' => 'Each media position must be at least 0.',
             'tags.array' => 'The tags must be an array.',
-            'tags.*.tag.required_with' => 'Each tag must have a value.',
-            'tags.*.tag.string' => 'Each tag must be a string.',
-            'tags.*.tag.max' => 'Each tag may not be greater than 255 characters.',
+            'tags.*.required_with' => 'Each tag ID is required.',
+            'tags.*.integer' => 'Each tag ID must be an integer.',
+            'tags.*.exists' => 'One or more selected tags do not exist.',
         ];
     }
 }

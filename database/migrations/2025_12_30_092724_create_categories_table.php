@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('parent_id')->nullable();
             $table->string('name');
             $table->string('slug')->unique();
             $table->boolean('is_active')->default(true);
@@ -20,6 +21,11 @@ return new class extends Migration
 
             $table->index('slug');
             $table->index('is_active');
+            $table->index('parent_id');
+        });
+
+        Schema::table('categories', function (Blueprint $table) {
+            $table->foreign('parent_id')->references('id')->on('categories')->nullOnDelete();
         });
     }
 
